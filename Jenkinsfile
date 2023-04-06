@@ -56,7 +56,7 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                    sh "kubectl --kubeconfig=config apply -f eks-deploy-k8s.yaml"
+                    sh "kubectl --kubeconfig=config apply -f eks-deploy-k8s.yaml -n dev"
         }
     }
 }
