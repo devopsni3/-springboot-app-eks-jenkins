@@ -23,23 +23,30 @@ pipeline {
               sh 'mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=devopsni3'
               }
             }
-          }        
-        stage ("Build image") {
-            steps {
+          }          
+    // Building Docker images
+        stage('Building image') {
+            steps{
                 script {
-                    docker.build registry
+                    dockerImage = docker.build registry + ":prod-$BUILD_NUMBER"
+                    }
                 }
             }
-        }
-        
-        stage ("Push to ECR") {
-            steps {
-                sh "aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 855894003578.dkr.ecr.ap-southeast-1.amazonaws.com"
-                sh "855894003578.dkr.ecr.ap-southeast-1.amazonaws.com/my-ecr-repo:latest"
-                
+            // Uploading Docker images into AWS ECR
+        stage('Pushing to ECR') {
+            steps{  
+                script {
+                    docker.withRegistry('https://855894003578.dkr.ecr.ap-southeast-1.amazonaws.com', 'ecr:ap-southeast-1:aws_cred') {
+                        dockerImage.push()
+                        }
+                    }
+                }
             }
-        }
-        
+        stage('Remove Unused Dockerimage') {
+            steps{
+                sh "docker rmi $registry:prod-$BUILD_NUMBER"
+           }
+        }        
         stage ("Deploy to K8S") {
             steps {
                 withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
