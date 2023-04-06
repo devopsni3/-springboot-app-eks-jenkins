@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        registry = "211223789150.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo"
+        registry = "855894003578.dkr.ecr.ap-southeast-1.amazonaws.com/my-ecr-repo"
     }
     
     stages {
         stage('Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/akannan1087/springboot-app']])
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/devopsni3/springboot-app-eks-jenkins.git']])
             }
         }
         
@@ -34,8 +34,8 @@ pipeline {
         
         stage ("Push to ECR") {
             steps {
-                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 211223789150.dkr.ecr.us-east-1.amazonaws.com"
-                sh "docker push 211223789150.dkr.ecr.us-east-1.amazonaws.com/my-docker-repo:latest"
+                sh "aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 855894003578.dkr.ecr.ap-southeast-1.amazonaws.com"
+                sh "855894003578.dkr.ecr.ap-southeast-1.amazonaws.com/my-ecr-repo:latest"
                 
             }
         }
