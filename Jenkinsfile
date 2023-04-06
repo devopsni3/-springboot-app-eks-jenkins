@@ -49,8 +49,8 @@ pipeline {
         }
         stage('Secrets Copy') {
             steps{
-                withCredentials([kubeconfigFile(credentialsId: 'K8S', variable: 'KUBECONFIG')]) {
-                        sh "cp \$KUBECONFIG config"
+                withCredentials([file(credentialsId: 'LocalKubernetes', variable: 'LocalKubernetes')]) {
+                    sh "cp \$LocalKubernetes config"
                 }
             }
         }
