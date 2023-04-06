@@ -47,10 +47,16 @@ pipeline {
                 sh "docker rmi $registry:prod-$BUILD_NUMBER"
            }
         }
+        stage('Secrets Copy') {
+            steps{
+                withCredentials([kubeconfigFile(credentialsId: 'K8S', variable: 'KUBECONFIG')]) {
+                        sh "cp \$KUBECONFIG config"
+                }
+            }
+        }
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([kubeconfigFile(credentialsId: 'K8S', variable: 'KUBECONFIG')]) {
-                    sh "kubectl apply -f eks-deploy-k8s.yaml"
+                    sh "kubectl --kubeconfig=config apply -f eks-deploy-k8s.yaml"
         }
     }
 }
