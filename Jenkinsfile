@@ -46,14 +46,14 @@ pipeline {
             steps{
                 sh "docker rmi $registry:prod-$BUILD_NUMBER"
            }
-        }        
-        stage ("Deploy to K8S") {
-            steps {
-                withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
-                sh "kubectl apply -f eks-deploy-k8s.yaml"
-                    
-                }
-            }
         }
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([kubeconfigFile(credentialsId: 'K8S', variable: 'KUBECONFIG')]) {
+                    sh "kubectl apply -f eks-deploy-k8s.yaml"
+        }
+    }
+}
+
     }
 }
